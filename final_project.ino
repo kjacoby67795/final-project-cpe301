@@ -1,5 +1,4 @@
 // Code: Kyle Jacoby
-// Code: Kyle Jacoby
 #include <Stepper.h>
 #include <RTClib.h>
 #include <DHT.h>
