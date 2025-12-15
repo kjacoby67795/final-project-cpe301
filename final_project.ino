@@ -1,4 +1,5 @@
 // Code: Kyle Jacoby
+// Code: Kyle Jacoby
 #include <Stepper.h>
 #include <RTClib.h>
 #include <DHT.h>
@@ -10,7 +11,7 @@
 #define GREEN_LED  0x80
 #define YELLOW_LED  0x20
 #define RED_LED  0x08
-#define RED_LED  0x02
+#define BLUE_LED  0x02
 
 #define ST_BTN     0x08
 #define RES_BTN    0x04
@@ -39,12 +40,12 @@ volatile unsigned char* my_ADCSRB = (unsigned char*) 0x7B;
 volatile unsigned char* my_ADCSRA = (unsigned char*) 0x7A;
 volatile unsigned int* my_ADC_DATA = (unsigned int*) 0x78;
 
-/* ===== States ===== */
+/* ===== State Machine ===== */
 typedef enum {DISABLED, IDLE, ERROR, RUNNING} STATE;
 STATE dev_state = DISABLED;
 STATE prev_state;
 
-/* ===== LCD Positions ===== */
+/* ===== LCD ===== */
 #define LCD_RS    12
 #define LCD_EN    11
 #define LCD_D4    6
@@ -55,7 +56,7 @@ LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 #define LCD_LEN 16
 char lcd_buf[LCD_LEN], err_msg[LCD_LEN];
 char state_map[4][16] = {"DISABLED","IDLE","ERROR","RUNNING"};
-unsigned char led_mask_map[4] = {YELLOW_LED,GREEN_LED,RED_LED,RED_LED};
+unsigned char led_mask_map[4] = {YELLOW_LED,GREEN_LED,RED_LED,BLUE_LED};
 
 /* ===== Sensors ===== */
 #define DHT_PIN   7
@@ -91,7 +92,7 @@ void load_ht(char *buf);
 void update_sensors();
 
 /* ===== Setup ===== */
-void setup(){
+void setup() {
     lcd.begin(16,2);
     dht.begin();
     rtc.begin();
@@ -254,8 +255,8 @@ ISR(PCINT0_vect){
 /* ===== Initialization ===== */
 void IO_INIT(){
     // LEDs
-    *DDR_C |= GREEN_LED|YELLOW_LED|RED_LED|RED_LED;
-    *PORT_C &= ~(GREEN_LED|YELLOW_LED|RED_LED|RED_LED);
+    *DDR_C |= GREEN_LED|YELLOW_LED|RED_LED|BLUE_LED;
+    *PORT_C &= ~(GREEN_LED|YELLOW_LED|RED_LED|BLUE_LED);
 
     // Fan
     *DDR_B |= FAN;
@@ -315,3 +316,4 @@ void UART0_PUTSTR(unsigned char *s,int len){
         *UDR_0 = s[i];
     }
 }
+
